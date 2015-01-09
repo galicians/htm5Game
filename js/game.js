@@ -47,6 +47,39 @@ var game = {
     showLevelScreen:function(){
         $('.gamelayer').hide();
         $('#levelselectscreen').show('slow');
+    },
+    // use the game.start() method to set up the animation loop, and then we draw the level inside the
+    // game.animate() method. 
+    mode:"intro",
+    slingshotX:140,
+    slingshotY:280,
+    // the start() method: Hides all other layers and displays the canvas layer and the score layer that is 
+    // a narrow bar on the top of the screen that contains.
+    // Sets the game animation interval to call the animate() function by using window.requestAnimationFrame.
+    start: function(){
+        $('.gamelayer').hide();
+        $('#gamecanvas').show();
+        $('#scorescreen').show();
+        // mode will be used to store the current state of the game (intro, wait for firing, firing, fired).
+        game.mode = "intro";
+        game.offsetLeft = 0;
+        game.ended = false;
+        game.animationFrame = window.requestAnimationFrame(game.animate, game.canvas);
+    },
+    handlePanning: function(){
+        game.offsetLeft++; // Temporary placeholder
+    },
+    // animate(), will do all the animation and drawing within our game. 
+    animate: function(){
+        game.handlePanning();
+        // draw the background and foreground image using the offsetLeft variable to offset the x axis of the images. 
+        game.context.drawImage(game.currentLevel.backgroundImage,game.offsetLeft/4,0,640,480,0,0,640,480);
+        game.context.drawImage(game.currentLevel.foregroundImage,game.offsetLeft,0,640,480,0,0,640,480);
+        game.context.drawImage(game.slingshotFrontImage,game.slingshotX-game.offset,game.slingshotY);
+        // we check if the game.ended flag has been set and, if not, use requestAnimationFrame to call animate() again.
+        if(!game.ended){
+            game.animationFrame = window.requestAnimationFrame(game.animate,game.canvas);
+        }
     }
 }
 
