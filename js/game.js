@@ -1,3 +1,30 @@
+// Setup requestAnimationFrame and cancelAnimationFrame for use in the game code
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = 
+          window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
+
 $(window).load(function() {
     game.init();
 });
@@ -51,13 +78,31 @@ var levels = {
             $('#levelselectscreen').hide();
         });
     },
+
+    // The load() function creates a currentLevel object to store the loaded level data.
+    // So far we have only loaded three images. We will eventually use this method to load the heroes, 
+    // villains, and blocks needed to build the game.
+    // One last thing to note is that we call the game.start() method once the images are loaded by either
+    // calling it immediately or setting an onload callback. This start() method is where the actual game will 
+    // be drawn.
+
     load:function(number){
 
-        game.currentLevel={ number: number, hero:[]};
+        game.currentLevel = { number: number, hero:[]};
         game.score = 0;
         $('#score').html('Score: ' + game.score);
         var level = levels.data[number];
         //load the background, foreground, and slingshot images
+        game.currentLevel.backgroundImage = loader.loadImage("images/backgrounds/" + level.background + ".png");
+        game.currentLevel.foregroundImage = loader.loadImage("images/backgrounds/" + level.foreground + ".png");
+        game.slingshotImage = loader.loadImage("images/slingshot.png");
+        game.slingshotFrontImage = loader.loadImage("images/slingshot-front.png");
+
+        if(loader.loaded){
+            game.start()
+        } else {
+            loader.onload = game.start;
+        }
     }
 }
 
