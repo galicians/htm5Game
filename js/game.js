@@ -36,6 +36,7 @@ var game = {
     init: function(){
         levels.init();
         loader.init();
+        mouse.init();
 
         // Hide all game layers and display the start screen
         $('.gamelayer').hide();
@@ -202,3 +203,54 @@ var loader = {
         }
     }
 }
+
+var mouse = {
+    x:0,
+    y:0,
+    down:false,
+    // init() method that sets event handlers for when the mouse is moved, when a mouse button 
+    // is pressed or released, and when the mouse leaves the canvas area. 
+    init:function(){
+    //we will use mousedown, mouseup, and mousemove to capture mouse movement
+        $('#gamecanvas').mousemove(mouse.mousemovehandler);
+        $('#gamecanvas').mousedown(mouse.mousedownhandler);
+        $('#gamecanvas').mouseup(mouse.mouseuphandler);
+        $('#gamecanvas').mouseout(mouse.mouseuphandler);
+    },
+    // Uses jQuery’s offset() method and the event object’s pageX and pageY properties 
+    // to calculate the x and y coordinates of the mouse relative to the top-left corner 
+    // of the canvas and stores them. It also checks whether the mouse button is pressed 
+    // down while the mouse is being moved and, if so, sets the dragging variable to true.
+    mousemovehandler:function(ev){
+        var offset=$('#gamecanvas').offset();
+
+        mouse.x = ev.pageX - offset.left;
+        mouse.y = ev.pageY - offset.top;
+        console.log("mouseX: ", mouse.x)
+        console.log("mousey: ", mouse.y)
+        if(mouse.down) {
+            mouse.dragging = true;
+        }
+    },
+    // mousedownhandler(): Sets the mouse.down variable to true and stores the
+    // location where the mouse button was pressed. It additionally contains
+    // an extra line to prevent the default browser behavior of the click button.
+    mousedownhandler:function(ev){
+        mouse.down = true;
+        mouse.downX = mouse.x;
+        mouse.downY = mouse.y;
+        ev.originalEvent.preventDefault();
+        console.log("downX: ", mouse.downX)
+        console.log("downy: ", mouse.downY)
+    },
+    // mouseuphandler(): Sets the down and dragging variables to false. If the mouse 
+    // leaves the canvas area, we call this same method.
+    mouseuphandler:function(ev){
+        mouse.down = false;
+        mouse.dragging = false;
+    }
+}
+
+
+
+
